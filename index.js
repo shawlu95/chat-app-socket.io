@@ -13,6 +13,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
   console.log('new connection');
   socket.emit('message', 'Welcome to the chat!');
+  socket.broadcast.emit('message', 'A user entered the chat!');
+  socket.on('disconnect', () => {
+    socket.broadcast.emit('message', 'A user left the chat!');
+  });
 });
 
 const PORT = process.env.PORT || 8080;
