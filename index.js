@@ -3,6 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 const formatMessage = require('./utils/messages');
+const { userJoins, getUser } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,19 +13,23 @@ const botName = 'Bailey';
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
-  console.log('new connection');
-  socket.emit('message', formatMessage(botName, 'Welcome to the chat!'));
+  socket.on('joinRoom', ({ username, room }) => {
+    const user = userJoins(socket.id, username, room);
+    console.log(user);
+    socket.join(user.room);
 
-  // broadcast: send to all clinets except the emitter
-  socket.broadcast.emit(
-    'message',
-    formatMessage(botName, 'A user entered the chat!')
-  );
-  socket.on('disconnect', () => {
-    socket.broadcast.emit(
-      'message',
-      formatMessage(botName, 'A user left the chat!')
-    );
+    // welcome current user
+    socket.emit('message', formatMessage(botName, 'Welcome to the chat!'));
+
+    // broadcast: send to all clinets except the emitter
+    socket.broadcast
+      .to(user.room)
+      .emit('message', formatMessage(botName, 'A user entered the chat!'));
+    socket.on('disconnect', () => {
+      socket.broadcast
+        .to(user.room)
+        .emit('message', formatMessage(botName, 'A user left the chat!'));
+    });
   });
 
   // listening for chat message
