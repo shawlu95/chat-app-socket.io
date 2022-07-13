@@ -24,17 +24,24 @@ io.on('connection', (socket) => {
     // broadcast: send to all clinets except the emitter
     socket.broadcast
       .to(user.room)
-      .emit('message', formatMessage(botName, 'A user entered the chat!'));
+      .emit(
+        'message',
+        formatMessage(botName, `${user.username} entered the chat!`)
+      );
     socket.on('disconnect', () => {
       socket.broadcast
         .to(user.room)
-        .emit('message', formatMessage(botName, 'A user left the chat!'));
+        .emit(
+          'message',
+          formatMessage(botName, `${user.username} left the chat!`)
+        );
     });
   });
 
   // listening for chat message
   socket.on('chatMessage', (msg) => {
-    io.emit('message', formatMessage('User', msg));
+    const user = getUser(socket.id);
+    io.to(user.room).emit('message', formatMessage(user.username, msg));
   });
 });
 
