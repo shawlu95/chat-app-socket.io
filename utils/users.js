@@ -21,4 +21,8 @@ function userLeaves(id) {
   }
 }
 
-module.exports = { userJoins, getUser, userLeaves };
+function getRoomUsers(room) {
+  return users.filter((user) => user.room === room);
+}
+
+module.exports = { userJoins, getUser, userLeaves, getRoomUsers };
