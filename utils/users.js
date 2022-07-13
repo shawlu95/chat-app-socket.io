@@ -13,4 +13,12 @@ function getUser(id) {
   return users.find((user) => user.id === id);
 }
 
-module.exports = { userJoins, getUser };
+function userLeaves(id) {
+  const index = users.findIndex((user) => user.id === id);
+  if (index !== -1) {
+    // remove one and return the removed user
+    return users.splice(id, 1)[0];
+  }
+}
+
+module.exports = { userJoins, getUser, userLeaves };
